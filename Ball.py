@@ -1,3 +1,5 @@
+import numpy
+
 class Position(object):
     def __init__(self, x, y):
         self.x = x
@@ -11,9 +13,13 @@ class Velocity(object):
 class Ball(object):
     
     def __init__(self, position, velocity, radius):
+        """
+        position: numpy array
+        velocity: numpy array
+        """
         self.position = position
         self.velocity = velocity
         self.radius = radius
     
     def __str__(self):
-        return f"Position, x: {self.position.x}, y: {self.position.y} \nVelocity, vx: {self.velocity.x}, vy: {self.velocity.y} \nRadius: {self.radius}"
+        return f"Position, x: {self.position[0]}, y: {self.position[1]} \nVelocity, vx: {self.velocity[0]}, vy: {self.velocity[1]} \nRadius: {self.radius}"
