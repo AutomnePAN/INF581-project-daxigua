@@ -12,14 +12,11 @@ class Velocity(object):
         
 class Ball(object):
     
-    def __init__(self, position, velocity, radius):
-        """
-        position: numpy array
-        velocity: numpy array
-        """
+    def __init__(self, position, velocity, radius, color=(255, 255, 255)):
         self.position = position
         self.velocity = velocity
         self.radius = radius
+        self.color = color
     
     def __str__(self):
         return f"Position, x: {self.position[0]}, y: {self.position[1]} \nVelocity, vx: {self.velocity[0]}, vy: {self.velocity[1]} \nRadius: {self.radius}"
