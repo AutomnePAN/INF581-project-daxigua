@@ -1,10 +1,8 @@
 import cv2 as cv
 import numpy as np
 
-from Ball import Ball, Position, Velocity
-
 class State(object):
-    
+
     def __init__(self,
                  screen_x,
                  screen_y,
@@ -13,7 +11,7 @@ class State(object):
                  score=0,
                  is_begin=True,
                  is_final=False,
-                 bg_color=(0, 165, 255)):
+                 bg_color=(200, 210, 221)):
         """
         screen_x: float, the width of the screen
         screen_y: float, the height of the screen
@@ -36,17 +34,17 @@ class State(object):
         if not self.is_begin:
             self.is_begin = True
             cv.namedWindow('state', cv.WINDOW_NORMAL)
-
         cv.line(self.canvas,
                 (0, self.screen_y - self.endline),
                 (self.screen_x, self.screen_y - self.endline),
                 (0, 0, 255), thickness=2)
         cv.putText(self.canvas, "Score : {}".format(self.score), (40, 50), cv.FONT_HERSHEY_PLAIN, 2.0, (0, 0, 255), 2)
         for ball in self.balls:
+            print(ball)
             cv.circle(self.canvas,
-                      (ball.position[0], self.screen_y-ball.position[1]),
-                      ball.radius, ball.color, -1)
-
+                      (int(ball.position[0]), int(self.screen_y-ball.position[1]) ),
+                      int(ball.radius), ball.color, -1)
+        print(64 * "-")
         cv.imshow('state', self.canvas)
         if is_save:
             cv.imwrite((path+"{}.jpg").format(self.step), img=self.canvas)

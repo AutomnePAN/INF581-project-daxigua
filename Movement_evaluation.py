@@ -4,27 +4,28 @@ import copy
 import numpy as np
 
 
-def check_converge(frames):
+def check_converge(frames, dt, g):
     """
     Check if the final state has converged
     
     frames: List[State], the frames stocked in order of time
     """
     
-    if len(frames) < 200:
+    if len(frames) < 600:
         return False
     else:
         last_frames = frames[-200:]
         for frame in last_frames:
             for b in frame.balls:
-                if np.linalg.norm(b.velocity) > 0.15:
+                if np.linalg.norm(b.velocity) > 2 * g * dt:
                     return False
         return True
     
 
-def evaluate_by_gravity(state):
+def evaluate_by_gravity(state, plot):
     """
     state: State, the initial state
+    plot: bool, if plot the progress of the movement
     return: State, the final converged state
     
     implement the movement of the balls in the state by the effect of gravity
@@ -36,7 +37,7 @@ def evaluate_by_gravity(state):
 
     screen_limit = np.array([state.screen_x, state.screen_y])
 
-    dt = 0.01  # time step of evaluation
+    dt = 0.1  # time step of evaluation
     t = 0
 
     frames = [state]  # store the frames of evaluation
@@ -65,72 +66,86 @@ def evaluate_by_gravity(state):
                 if b.position[j] < b.radius:
                     b.velocity[j] = 0
                     b.position[j] = b.radius          
-
-                if b.position[j] > screen_limit[j] - b.radius:
+                    
+                if j == 0 and b.position[j] > screen_limit[j] - b.radius:
                     b.velocity[j] = 0
                     b.position[j] = screen_limit[j] - b.radius
 
     #         Check collisions between balls
-        for i in range(N):
-            for j in range(i+1, N):
+        i = 0
+        while i < len(balls):
+            j = i + 1
+            while j < len(balls):
                 ball_1 = balls[i]
                 ball_2 = balls[j]
-                
                 
                 if ( np.linalg.norm(ball_1.position - ball_2.position) <= ball_1.radius + ball_2.radius ):
                     
                     m1 = ball_1.radius
                     m2 = ball_2.radius
-                    
-                    mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
-                    u = (ball_2.position - ball_1.position)  # uniform vector from ball 1 to ball 2
-                    u = u / np.linalg.norm(u)
-                    #  Update the positions after collision
-                    ball_1.position = mid_point - ball_1.radius * u
-                    ball_2.position = mid_point + ball_2.radius * u
-                    
-                    # Update the velocity of balls after collsion
-                    # divide the velocity to two dimension : u and n
-                    
-                    v1_u = np.dot(ball_1.velocity, u) * u
-                    v1_n = ball_1.velocity - v1_u
-                    
-                    v2_u = np.dot(ball_2.velocity, u) * u
-                    v2_n = ball_2.velocity - v2_u
-                    
-                    # the velocity of direction n does not change, but in direction u they exchange
+                    if m1 != m2:
+                        mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
+                        u = (ball_2.position - ball_1.position)  # uniform vector from ball 1 to ball 2
+                        u = u / np.linalg.norm(u)
+                        #  Update the positions after collision
+                        ball_1.position = mid_point - ball_1.radius * u
+                        ball_2.position = mid_point + ball_2.radius * u
 
-                    
-                    v1_u_after = collision_factor * ((m1 - m2) * v1_u + 2 * m2 * v2_u)/(m1 + m2)
-                    v2_u_after = collision_factor * ((m2 - m1) * v2_u + 2 * m1 * v1_u)/(m1 + m2)
-                    
-                    ball_1.velocity = amortize_factor*v1_n + v2_u_after
-                    ball_2.velocity = amortize_factor*v2_n + v1_u_after
-            
-        for i in range(N):
+                        # Update the velocity of balls after collsion
+                        # divide the velocity to two dimension : u and n
+
+                        v1_u = np.dot(ball_1.velocity, u) * u
+                        v1_n = ball_1.velocity - v1_u
+
+                        v2_u = np.dot(ball_2.velocity, u) * u
+                        v2_n = ball_2.velocity - v2_u
+
+                        # the velocity of direction n does not change, but in direction u they exchange
+
+
+                        v1_u_after = collision_factor * ((m1 - m2) * v1_u + 2 * m2 * v2_u)/(m1 + m2)
+                        v2_u_after = collision_factor * ((m2 - m1) * v2_u + 2 * m1 * v1_u)/(m1 + m2)
+
+                        ball_1.velocity = amortize_factor*v1_n + v2_u_after
+                        ball_2.velocity = amortize_factor*v2_n + v1_u_after
+                        j += 1
+                  
+                    else:
+                        #  Form a new ball with larger radius
+                        mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
+                        
+                        del balls[j]
+                        balls[i].position = mid_point
+                        balls[i].velocity = np.array([0, 0])
+                        balls[i].radius = 1.5*balls[i].radius  # TO MODIFIED WITH GAME SETTING
+                else:
+                    j += 1
+            i += 1
+     
+        for i in range(len(balls)):
             b = balls[i]
             for j in range(2):
                 if b.position[j] < b.radius:
                     b.velocity[j] = 0
                     b.position[j] = b.radius          
 
-                if b.position[j] > screen_limit[j] - b.radius:
+                if j == 0 and b.position[j] > screen_limit[j] - b.radius:
                     b.velocity[j] = 0
                     b.position[j] = screen_limit[j] - b.radius
             
         count += 1
-        for i in range(N):
+        for i in range(len(balls)):
             b = balls[i]
-            if np.linalg.norm(b.velocity) < 0.05:
+            if np.linalg.norm(b.velocity) < 0.5 * -g * dt:
                 b.velocity = np.array([0,0])
-#             if count % 100 == 0:
-#                 print(b)
-    #       For debug
-#         if count % 100 ==
+
+        if plot:
+            if count % 10 == 0:
+                state.plot_state()
         
         frames.append( copy.deepcopy(state) )
-        converged = check_converge(frames)
+        converged = check_converge(frames, g, dt)
         t += dt
-        if t > 60:  # protection
+        if t > 120:  # protection, need more tuning
             break;
     return state
