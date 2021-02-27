@@ -4,25 +4,27 @@ import copy
 import numpy as np
 from Config import balls_setting
 
-def check_converge(frames, dt, g):
+def check_converge(frames, tolerance=5):
     """
     Check if the final state has converged
     
     frames: List[State], the frames stocked in order of time
     """
     
-    if len(frames) < 600:
-        return False
-    else:
-        last_frames = frames[-200:]
-        for frame in last_frames:
-            for b in frame.balls:
-                if np.linalg.norm(b.velocity) > 2 * g * dt:
-                    return False
-        return True
+    last_frames = frames[-10:]
+    current_frame = last_frames[-1]
+    for frame in last_frames:
+        if len(frame.balls) != len(current_frame.balls):
+            return False
+
+        for b1, b2 in zip(frame.balls, current_frame.balls):
+#             print(np.linalg.norm(b1.position - b2.position), b1.position, b2.position)
+            if np.linalg.norm(b1.position - b2.position) > tolerance:
+                return False
+    return True
     
 
-def evaluate_by_gravity(state, plot, verbose= False):
+def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 10, protection_time_limit = 30, verbose= False):
     """
     state: State, the initial state
     plot: bool, if plot the progress of the movement
@@ -34,13 +36,12 @@ def evaluate_by_gravity(state, plot, verbose= False):
     implement the movement of the balls in the state by the effect of gravity
     """
     
-    g = -9.8
-    amortize_factor = 0.99  # further tuning needed
-    collision_factor = 0.09  # further tuning needed
+    g = -39.8
+    amortize_factor = 1.5  # further tuning needed
+    collision_factor = 0.5  # further tuning needed
 
     screen_limit = np.array([state.screen_x, state.screen_y])
 
-    dt = 0.1  # time step of evaluation
     t = 0
 
     frames = [state]  # store the frames of evaluation
@@ -154,12 +155,13 @@ def evaluate_by_gravity(state, plot, verbose= False):
                 b.velocity = np.array([0,0])
 
         if plot:
-            if count % 10 == 0:
+            if count % 5 == 0:
                 state.plot_state()
         
         frames.append( copy.deepcopy(state) )
-        converged = check_converge(frames, g, dt)
+        if len(frames) >= check_converge_step and len(frames) % check_converge_step == 0:
+            converged = check_converge(frames)
         t += dt
-        if t > 120:  # protection, need more tuning
+        if t > protection_time_limit:  # protection, need more tuning
             break;
     return state, obtained_score

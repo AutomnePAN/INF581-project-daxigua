@@ -5,7 +5,7 @@ import random
 import numpy as np
 
 class Game(object):
-    
+
     """
     Implement the environment of the Game
     """
@@ -18,7 +18,7 @@ class Game(object):
         balls_setting: Dict( radius: float, score: float, color: tuple ), the sizes of balls and corresponding rewards used in the function
         max_random_ball_level: integer, the max level of the ball to add at each step
         """
-        
+
         self.screen_x = screen_x
         self.screen_y = screen_y
         self.end_line = end_line
