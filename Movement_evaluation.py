@@ -2,49 +2,54 @@ from State import State
 from Ball import Ball, Position, Velocity
 import copy
 import numpy as np
+from Config import balls_setting
 
-
-def check_converge(frames, dt, g):
+def check_converge(frames, tolerance=5):
     """
     Check if the final state has converged
     
     frames: List[State], the frames stocked in order of time
     """
     
-    if len(frames) < 600:
-        return False
-    else:
-        last_frames = frames[-200:]
-        for frame in last_frames:
-            for b in frame.balls:
-                if np.linalg.norm(b.velocity) > 2 * g * dt:
-                    return False
-        return True
+    last_frames = frames[-10:]
+    current_frame = last_frames[-1]
+    for frame in last_frames:
+        if len(frame.balls) != len(current_frame.balls):
+            return False
+
+        for b1, b2 in zip(frame.balls, current_frame.balls):
+#             print(np.linalg.norm(b1.position - b2.position), b1.position, b2.position)
+            if np.linalg.norm(b1.position - b2.position) > tolerance:
+                return False
+    return True
     
 
-def evaluate_by_gravity(state, plot):
+def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 10, protection_time_limit = 30, verbose= False):
     """
     state: State, the initial state
     plot: bool, if plot the progress of the movement
-    return: State, the final converged state
+
+    return:
+        State: the final converged state
+        obtained_score: score obtained during the evaluation
     
     implement the movement of the balls in the state by the effect of gravity
     """
     
-    g = -9.8
-    amortize_factor = 0.99  # further tuning needed
-    collision_factor = 0.09  # further tuning needed
+    g = -39.8
+    amortize_factor = 1.5  # further tuning needed
+    collision_factor = 0.5  # further tuning needed
 
     screen_limit = np.array([state.screen_x, state.screen_y])
 
-    dt = 0.1  # time step of evaluation
     t = 0
 
     frames = [state]  # store the frames of evaluation
     converged = False  
 
     balls = state.balls
-    
+
+    obtained_score = 0
     count = 0
     
     while not converged:
@@ -83,7 +88,8 @@ def evaluate_by_gravity(state, plot):
                     
                     m1 = ball_1.radius
                     m2 = ball_2.radius
-                    if m1 != m2:
+                    # collision happens if the two balls have different types or the two balls are on the highest level
+                    if m1 != m2 or (m1 == m2 and ball_1.ball_level == max(balls_setting)):
                         mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
                         u = (ball_2.position - ball_1.position)  # uniform vector from ball 1 to ball 2
                         u = u / np.linalg.norm(u)
@@ -111,13 +117,22 @@ def evaluate_by_gravity(state, plot):
                         j += 1
                   
                     else:
-                        #  Form a new ball with larger radius
+                        #  Obtain score when remove one ball
+                        removed_ball_level = balls_setting[balls[j].ball_level]
+                        obtained_score += removed_ball_level['score']
+                        if verbose:
+                            print('Remove a {}, obtain {} score'.format(removed_ball_level['name'], removed_ball_level['score']))
+
+                        #  Upgrade the two same level ball into one ball of a higher level
                         mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
-                        
+
+
                         del balls[j]
                         balls[i].position = mid_point
                         balls[i].velocity = np.array([0, 0])
-                        balls[i].radius = 1.5*balls[i].radius  # TO MODIFIED WITH GAME SETTING
+                        # Upgrade the ball into next level
+                        balls[i].change_ball_level(balls[i].ball_level + 1)
+
                 else:
                     j += 1
             i += 1
@@ -140,12 +155,13 @@ def evaluate_by_gravity(state, plot):
                 b.velocity = np.array([0,0])
 
         if plot:
-            if count % 10 == 0:
+            if count % 5 == 0:
                 state.plot_state()
         
         frames.append( copy.deepcopy(state) )
-        converged = check_converge(frames, g, dt)
+        if len(frames) >= check_converge_step and len(frames) % check_converge_step == 0:
+            converged = check_converge(frames)
         t += dt
-        if t > 120:  # protection, need more tuning
+        if t > protection_time_limit:  # protection, need more tuning
             break;
-    return state
+    return state, obtained_score
