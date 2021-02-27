@@ -21,7 +21,6 @@ def check_converge(frames, tolerance=5):
 #             print(np.linalg.norm(b1.position - b2.position), b1.position, b2.position)
             if np.linalg.norm(b1.position - b2.position) > tolerance:
                 return False
-    print("CONVERGE")
     return True
     
 
