@@ -47,11 +47,11 @@ class Game(object):
         new_ball = Ball(pos, vel, ball_level)
         return new_ball
 
-    def next_step(self, action, verbose = False):
+    def next_step(self, action, verbose = True):
         """
         action: float, the x position of the new ball to drop with
         """
-        if self.check_fin():
+        if self.check_fin(ignore_last_ball = True):
             print('The game is finish.')
             return
         # Move the latest ball in the current state to the x_position indicated by action
@@ -66,9 +66,9 @@ class Game(object):
             print('The game is finish.')
 
 
-    def check_fin(self):
+    def check_fin(self, ignore_last_ball = False):
         """Check if all the balls are under the endline."""
-        for ball in self.current_state.balls:
-            if ball.position[1] + ball.radius > self.end_line:
+        for i in range(len(self.current_state.balls) - int(ignore_last_ball)):
+            if self.current_state.balls[i].position[1] + self.current_state.balls[i].radius > self.end_line:
                 return True
         return False
