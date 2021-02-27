@@ -28,11 +28,12 @@ class Ball(object):
         self.color = balls_setting[ball_level]['color']
 
     def __str__(self):
-        return f"Position, x: {self.position[0]}, y: {self.position[1]} \nVelocity, vx: {self.velocity[0]}, vy: {self.velocity[1]} \nRadius: {self.radius}\n"
+        return f"Position, x: {self.position[0]}, y: {self.position[1]} \nVelocity, vx: {self.velocity[0]}, vy: {self.velocity[1]} \nLevel: {self.ball_level},Radius: {self.radius}\n"
 
     def change_ball_level(self, new_ball_level):
         # change the type of the ball
         self.radius = balls_setting[new_ball_level]['radius']
         self.color = balls_setting[new_ball_level]['color']
+        self.ball_level = new_ball_level
 
 

@@ -1,11 +1,8 @@
 # the configuration of the canvas
-# screen_x = 552
-# screen_y = 969
-# end_line = 580
+screen_x = 552
+screen_y = 969
+end_line = 800
 
-screen_x = 352
-screen_y = 669
-end_line = 480
 
 # the configuration of ball types used in the game
 # index ordered by the value of radius
@@ -23,4 +20,4 @@ balls_setting= {
 }
 
 # to random a new ball for a game state, we only create balls with level smaller than max_random_level
-max_random_ball_level = 5
+max_random_ball_level = 4
