@@ -12,7 +12,7 @@ class Velocity(object):
         self.y = vy
         
 class Ball(object):
-    def __init__(self, position, velocity, ball_type):
+    def __init__(self, position, velocity, ball_level):
         '''
         position: numpy.array, the center of ball
         velocity: numpy.array, the velocity vector of ball
@@ -23,16 +23,16 @@ class Ball(object):
          '''
         self.position = position
         self.velocity = velocity
-        self.ball_type = ball_type
-        self.radius = balls_setting[ball_type]['radius']
-        self.color = balls_setting[ball_type]['color']
+        self.ball_level = ball_level
+        self.radius = balls_setting[ball_level]['radius']
+        self.color = balls_setting[ball_level]['color']
 
     def __str__(self):
         return f"Position, x: {self.position[0]}, y: {self.position[1]} \nVelocity, vx: {self.velocity[0]}, vy: {self.velocity[1]} \nRadius: {self.radius}\n"
 
-    def change_ball_type(self, new_ball_type):
+    def change_ball_level(self, new_ball_level):
         # change the type of the ball
-        self.radius = balls_setting[new_ball_type]['radius']
-        self.color = balls_setting[new_ball_type]['color']
+        self.radius = balls_setting[new_ball_level]['radius']
+        self.color = balls_setting[new_ball_level]['color']
 
 

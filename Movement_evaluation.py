@@ -84,7 +84,7 @@ def evaluate_by_gravity(state, plot):
                     m1 = ball_1.radius
                     m2 = ball_2.radius
                     # collision happens if the two balls have different types or the two balls are on the highest level
-                    if m1 != m2 or (m1 == m2 and ball_1.ball_type == max(balls_setting)):
+                    if m1 != m2 or (m1 == m2 and ball_1.ball_level == max(balls_setting)):
                         mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
                         u = (ball_2.position - ball_1.position)  # uniform vector from ball 1 to ball 2
                         u = u / np.linalg.norm(u)
@@ -120,7 +120,7 @@ def evaluate_by_gravity(state, plot):
                         balls[i].position = mid_point
                         balls[i].velocity = np.array([0, 0])
                         # upgrade the ball into next level
-                        balls[i].change_ball_type(balls[i].ball_type + 1)
+                        balls[i].change_ball_level(balls[i].ball_level + 1)
 
                 else:
                     j += 1
