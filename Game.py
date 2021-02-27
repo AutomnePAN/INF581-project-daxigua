@@ -51,6 +51,9 @@ class Game(object):
         """
         action: float, the x position of the new ball to drop with
         """
+        if self.check_fin():
+            print('The game is finish.')
+            return
         # Move the latest ball in the current state to the x_position indicated by action
         self.current_state.balls[-1].position[0] = action
         self.current_state, obtained_score = evaluate_by_gravity(self.current_state, plot=False, verbose= verbose)
@@ -59,8 +62,13 @@ class Game(object):
         if not self.check_fin():
             # Add a new ball into the state
             self.current_state.balls.append(self.random_new_ball())
+        else:
+            print('The game is finish.')
 
 
     def check_fin(self):
-#         --TO DO--
+        """Check if all the balls are under the endline."""
+        for ball in self.current_state.balls:
+            if ball.position[1] + ball.radius > self.end_line:
+                return True
         return False
