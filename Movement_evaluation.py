@@ -22,11 +22,14 @@ def check_converge(frames, dt, g):
         return True
     
 
-def evaluate_by_gravity(state, plot):
+def evaluate_by_gravity(state, plot, verbose= False):
     """
     state: State, the initial state
     plot: bool, if plot the progress of the movement
-    return: State, the final converged state
+
+    return:
+        State: the final converged state
+        obtained_score: score obtained during the evaluation
     
     implement the movement of the balls in the state by the effect of gravity
     """
@@ -44,7 +47,8 @@ def evaluate_by_gravity(state, plot):
     converged = False  
 
     balls = state.balls
-    
+
+    obtained_score = 0
     count = 0
     
     while not converged:
@@ -112,14 +116,20 @@ def evaluate_by_gravity(state, plot):
                         j += 1
                   
                     else:
-                        #  Form a new ball with larger radius
+                        #  Obtain score when remove one ball
+                        removed_ball_level = balls_setting[balls[j].ball_level]
+                        obtained_score += removed_ball_level['score']
+                        if verbose:
+                            print('Remove a {}, obtain {} score'.format(removed_ball_level['name'], removed_ball_level['score']))
+
+                        #  Upgrade the two same level ball into one ball of a higher level
                         mid_point = (1/(m1 + m2)) * (m2 * ball_1.position +  m1 * ball_2.position)
 
 
                         del balls[j]
                         balls[i].position = mid_point
                         balls[i].velocity = np.array([0, 0])
-                        # upgrade the ball into next level
+                        # Upgrade the ball into next level
                         balls[i].change_ball_level(balls[i].ball_level + 1)
 
                 else:
@@ -152,4 +162,4 @@ def evaluate_by_gravity(state, plot):
         t += dt
         if t > 120:  # protection, need more tuning
             break;
-    return state
+    return state, obtained_score
