@@ -24,7 +24,7 @@ def check_converge(frames, tolerance=5):
     return True
     
 
-def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 10, protection_time_limit = 30, verbose= False):
+def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 10, protection_time_limit = 40, verbose= False):
     """
     state: State, the initial state
     plot: bool, if plot the progress of the movement

@@ -65,7 +65,12 @@ class Game(object):
             # Add a new ball into the state
             self.current_state.balls.append(self.random_new_ball())
         else:
-            print('The game is finish.')
+            # Add the score corresponding to all the balls created
+            final_step_score = 0
+            for ball in self.current_state.balls:
+                final_step_score += self.balls_setting[ball.ball_level]['score']
+            self.current_reward += final_step_score
+            print('The game is finish, final score is {}'.format(self.current_reward))
 
         return self.current_state, self.current_reward, self.is_finish
 
