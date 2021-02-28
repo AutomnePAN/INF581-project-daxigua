@@ -28,7 +28,6 @@ class Game(object):
         self.current_reward = 0
         self.is_finish = False
         self.init_state()
-
         
     def init_state(self):
         """Initialize the state with one ball at the middle top of the canvas"""

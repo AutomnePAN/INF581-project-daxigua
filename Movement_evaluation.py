@@ -163,5 +163,9 @@ def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 10, pro
             converged = check_converge(frames)
         t += dt
         if t > protection_time_limit:  # protection, need more tuning
-            break;
+            break
+
+    state.score += obtained_score
+    state.step += 1
+
     return state, obtained_score
