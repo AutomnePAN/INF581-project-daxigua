@@ -46,7 +46,7 @@ class State(object):
                       (int(ball.position[0]), int(self.screen_y-ball.position[1])),
                       int(ball.radius), ball.color, -1)
 
-            text = f"{ball.ball_level}"
+            text = f"{ball.ball_level + 1}"
             textsize = cv.getTextSize(text, cv.FONT_HERSHEY_PLAIN, 2, 2)[0]
             cv.putText(cur_canvas,
                        text,
