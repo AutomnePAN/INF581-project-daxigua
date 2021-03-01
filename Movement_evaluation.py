@@ -4,14 +4,14 @@ import copy
 import numpy as np
 from Config import balls_setting
 
-def check_converge(frames, tolerance=5):
+def check_converge(frames, tolerance=3):
     """
     Check if the final state has converged
     
     frames: List[State], the frames stocked in order of time
     """
     
-    last_frames = frames[-10:]
+    last_frames = frames[-20:]
     current_frame = last_frames[-1]
     for frame in last_frames:
         if len(frame.balls) != len(current_frame.balls):
@@ -24,7 +24,7 @@ def check_converge(frames, tolerance=5):
     return True
     
 
-def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 10, protection_time_limit = 30, verbose= False):
+def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 20, protection_time_limit = 60, verbose= False):
     """
     state: State, the initial state
     plot: bool, if plot the progress of the movement
