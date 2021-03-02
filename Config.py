@@ -1,7 +1,7 @@
 # the configuration of the canvas
-screen_x = 400
-screen_y = 700
-end_line = 550
+screen_x = 552
+screen_y = 969
+end_line = 800
 
 
 # the configuration of ball types used in the game

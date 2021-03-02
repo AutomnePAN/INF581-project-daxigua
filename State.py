@@ -30,6 +30,24 @@ class State(object):
         self.step = 0
         self.canvas = InitCanvas(self.screen_x, self.screen_y, color=self.bg_color)
 
+    def vectorize(self, N = 10):
+        """
+        vectorize current state by a vector of dimension 3*N + 1
+        We suppose there is only one ball above the endline
+        """
+        result = np.zeros(3 * N + 1)
+        self.balls.sort(key = lambda b: b.position[1], reverse=True)
+        k = 0
+        for i in range(min(N, len(self.balls))):
+            if self.balls[i].position[1] > self.endline:
+                result[0] = self.balls[i].radius
+            else:
+                result[3 * k + 1 : 3 * k + 3] = self.balls[i].position
+                result[3 * k + 3] = self.balls[i].radius
+                k += 1
+        return result
+        
+    
     def plot_state(self, is_save=True, path="./result/", is_plt=False):
         """Plot the State with an image"""
         if self.is_begin:
@@ -46,7 +64,7 @@ class State(object):
                       (int(ball.position[0]), int(self.screen_y-ball.position[1])),
                       int(ball.radius), ball.color, -1)
 
-            text = f"{ball.ball_level}"
+            text = f"{ball.ball_level + 1}"
             textsize = cv.getTextSize(text, cv.FONT_HERSHEY_PLAIN, 2, 2)[0]
             cv.putText(cur_canvas,
                        text,
