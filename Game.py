@@ -52,7 +52,8 @@ class Game(object):
         action: float, the x position of the new ball to drop with
         """
         if self.is_finish:
-            print('The game is finish.')
+            if verbose:
+                print('The game is finish.')
             return
         # Move the latest ball in the current state to the x_position indicated by action
         self.current_state.balls[0].position[0] = action
@@ -70,7 +71,8 @@ class Game(object):
             for ball in self.current_state.balls:
                 final_step_score += self.balls_setting[ball.ball_level]['score']
             self.current_reward += final_step_score
-            print('The game is finish, final score is {}'.format(self.current_reward))
+            if verbose:
+                print('The game is finish, final score is {}'.format(self.current_reward))
 
         return self.current_state, self.current_reward, self.is_finish
 
