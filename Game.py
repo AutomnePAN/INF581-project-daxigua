@@ -54,7 +54,8 @@ class Game(object):
         action: float, the x position of the new ball to drop with
         """
         if self.is_finish:
-            print('The game is finish.')
+            if verbose:
+                print('The game is finish.')
             return
         # Move the latest ball in the current state to the x_position indicated by action
         self.current_state.balls[0].position[0] = action
