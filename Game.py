@@ -39,6 +39,10 @@ class Game(object):
         self.is_finish = False
         return state
 
+    def reset(self):
+        """Alias for init_state"""
+        return self.init_state()
+
     def random_new_ball(self):
         """We only random a ball with level between [0, max_ball_level]"""
         ball_level = random.randint(0, self.max_random_ball_level)
@@ -56,7 +60,7 @@ class Game(object):
         if self.is_finish:
             if verbose:
                 print('The game is finish.')
-            return
+            return self.current_state, self.current_reward, self.is_finish
         # Move the latest ball in the current state to the x_position indicated by action
         self.current_state.balls[0].position[0] = action
         self.current_state, obtained_score = evaluate_by_gravity(
