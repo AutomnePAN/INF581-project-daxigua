@@ -115,15 +115,19 @@ def play_one_episode(game: Game, agent: Agent, max_step=None, plot=False):
 
     while not is_finish:
         action = agent.get_action(current_state)
-        print("action: " + str(action))
-        next_state, reward, is_finish = game.next_step(action, verbose=True)
+        # print("action: " + str(action))
+        next_state, reward, is_finish = game.next_step(action, verbose=False)
         if plot:
             next_state.plot_state()
         current_state = next_state
-        episode_rewards.append(reward)
+        if episode_rewards == []:
+            episode_rewards.append(reward)
+        else:
+            episode_rewards.append(reward-episode_rewards[-1])
         episode_actions.append(action)
         episode_states.append(current_state)
         step += 1
+        print(episode_rewards)
         if max_step and step >= max_step:
             break
 
@@ -157,7 +161,7 @@ def score_on_multiple_episodes(game: Game, agent, score=SCORE, num_episodes=NUM_
 
     for episode_index in range(num_episodes):
         _, _, episode_rewards = play_one_episode(
-            game, agent, plot=plot)
+            game, agent)
 
         total_rewards = sum(episode_rewards)
 
@@ -188,7 +192,7 @@ def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
     episode_index = 0
     average_returns = []
 
-    success, _, R = score_on_multiple_episodes(game, agent)
+    success, _, R = score_on_multiple_episodes(game, agent, plot=True)
     average_returns.append(R)
 
     # Train until success
@@ -212,7 +216,7 @@ def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
 
         # Test new policy
         success, _, R = score_on_multiple_episodes(
-            game, agent, plot=False)
+            game, agent, plot=True)
 
         # Monitoring
         average_returns.append(R)
