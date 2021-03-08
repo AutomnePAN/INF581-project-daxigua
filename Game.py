@@ -71,7 +71,7 @@ class Game(object):
 
         if not self.is_finish:
             # Add a new ball into the state
-            self.current_state.balls.append(self.random_new_ball())
+            self.current_state.balls.insert(0, self.random_new_ball())
         else:
             # Add the score corresponding to all the balls created
             final_step_score = 0
