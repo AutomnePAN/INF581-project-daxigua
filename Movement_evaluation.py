@@ -24,7 +24,13 @@ def check_converge(frames, tolerance=3):
     return True
     
 
-def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 20, protection_time_limit = 60, verbose= False):
+def evaluate_by_gravity(state,
+                        plot=False,
+                        dt=0.1,
+                        check_converge_step = 20,
+                        protection_time_limit = 60,
+                        verbose= False,
+                        video=False):
     """
     state: State, the initial state
     plot: bool, if plot the progress of the movement
@@ -38,7 +44,7 @@ def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 20, pro
     
     g = -39.8
     amortize_factor = 1.5  # further tuning needed
-    collision_factor = 0.19  # further tuning needed
+    collision_factor = 0.03  # further tuning needed
 
     screen_limit = np.array([state.screen_x, state.screen_y])
 
@@ -157,6 +163,8 @@ def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 20, pro
         if plot:
             if count % 5 == 0:
                 state.plot_state()
+        if video:
+            state.video()
         
         frames.append( copy.deepcopy(state) )
         if len(frames) >= check_converge_step and len(frames) % check_converge_step == 0:

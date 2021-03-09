@@ -49,24 +49,25 @@ class Game(object):
         new_ball = Ball(pos, vel, ball_level)
         return new_ball
 
-    def next_step(self, action, verbose=True):
+    def next_step(self, action, verbose=True, **kwargs):
         """
         action: float, the x position of the new ball to drop with
         """
         if self.is_finish:
-            print('The game is finish.')
-            return
+            if verbose:
+                print('The game is finish.')
+            return self.current_state, self.current_reward, self.is_finish
         # Move the latest ball in the current state to the x_position indicated by action
         self.current_state.balls[0].position[0] = action
         self.current_state, obtained_score = evaluate_by_gravity(
-            self.current_state, plot=False, verbose=verbose)
+            self.current_state, plot=False, verbose=verbose, **kwargs)
         self.current_reward += obtained_score
 
         self.is_finish = self.check_fin()
 
         if not self.is_finish:
             # Add a new ball into the state
-            self.current_state.balls.append(self.random_new_ball())
+            self.current_state.balls.insert(0, self.random_new_ball())
         else:
             # Add the score corresponding to all the balls created
             final_step_score = 0
