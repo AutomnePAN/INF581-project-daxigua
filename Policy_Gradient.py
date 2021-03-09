@@ -79,27 +79,6 @@ class Gradient_Agent(Agent):
 
         return PG
 
-    # Train the agent got an average reward greater or equals to 195 over 100 consecutive trials
-
-
-# def logistic_regression(s: State, theta: np.array):
-#     """
-#     s: State
-#     theta: np.array, with the same dimension as the vectorized state
-
-#     Example:
-#     >>> logistic_regression(Game(screen_x, screen_y, end_line, balls_setting, max_random_ball_level).init_state(), np.zeros((2, 31)))
-#     (0.0, 1.0)
-#     """
-
-#     mu, sigma = np.dot(s.vectorize(), np.transpose(theta))
-#     return sigmoid(mu), np.exp(sigma)
-
-
-# def draw_action(s: State, theta):
-#     mu, sigma = logistic_regression(s, theta)
-#     return np.clip(np.random.normal(mu, sigma, 1), 0, s.screen_x)
-
 
 def play_one_episode(game: Game, agent: Agent, max_step=None, plot=False):
     is_finish = False
@@ -131,28 +110,6 @@ def play_one_episode(game: Game, agent: Agent, max_step=None, plot=False):
     print(episode_rewards)
     print("")
     return episode_states, episode_actions, episode_rewards
-
-
-# Returns Policy Gradient for a given episode
-# def compute_policy_gradient(episode_states, episode_actions, episode_rewards, theta):
-
-#     H = len(episode_rewards)
-#     PG = 0
-
-#     for t in range(H):
-
-#         mu, sigma = logistic_regression(episode_states[t], theta)
-#         s_t = episode_states[t].vectorize()
-#         a_t = episode_actions[t]
-#         R_t = sum(episode_rewards[t::])
-#         g_gaussian = [(a_t-mu)/(sigma**2), ((a_t-mu)**2-sigma**2)/(sigma**3)]
-#         mu_partiel_theta = np.array([s_t, np.zeros(31)])
-#         sigma_partiel_theta = np.array([np.zeros(31), s_t])
-#         g_theta_log_pi = g_gaussian[0]*mu_partiel_theta*mu*(1-mu) + \
-#             g_gaussian[1]*sigma_partiel_theta*sigma
-#         PG += g_theta_log_pi * R_t
-
-#     return PG
 
 
 def score_on_multiple_episodes(game: Game, agent, score=SCORE, num_episodes=NUM_EPISODES, plot=False):
@@ -195,7 +152,7 @@ def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
     episode_index = 0
     average_returns = []
 
-    success, _, R = score_on_multiple_episodes(game, agent, plot=True)
+    success, _, R, _ = score_on_multiple_episodes(game, agent, plot=True)
     average_returns.append(R)
 
     # Train until success
