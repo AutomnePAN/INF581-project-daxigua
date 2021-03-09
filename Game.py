@@ -38,7 +38,11 @@ class Game(object):
         self.current_reward = 0
         self.is_finish = False
         return state
-
+    
+    def reset(self):
+        """Alias for init_state"""
+        return self.init_state()
+            
     def random_new_ball(self):
         """We only random a ball with level between [0, max_ball_level]"""
         ball_level = random.randint(0, self.max_random_ball_level)

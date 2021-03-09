@@ -40,10 +40,11 @@ class State(object):
         k = 0
         for i in range(min(N, len(self.balls))):
             if self.balls[i].position[1] > self.endline:
-                result[0] = self.balls[i].radius
+                result[0] = 2 * self.balls[i].radius / self.screen_x
             else:
-                result[3 * k + 1 : 3 * k + 3] = self.balls[i].position
-                result[3 * k + 3] = self.balls[i].radius
+                result[3 * k + 1] = self.balls[i].position[0] / self.screen_x
+                result[3 * k + 2] = self.balls[i].position[1] / self.screen_y
+                result[3 * k + 3] = 2 * self.balls[i].radius / self.screen_x
                 k += 1
         return result
         
