@@ -38,7 +38,7 @@ def evaluate_by_gravity(state, plot=False, dt=0.1, check_converge_step = 20, pro
     
     g = -39.8
     amortize_factor = 1.5  # further tuning needed
-    collision_factor = 0.19  # further tuning needed
+    collision_factor = 0.09  # further tuning needed
 
     screen_limit = np.array([state.screen_x, state.screen_y])
 
