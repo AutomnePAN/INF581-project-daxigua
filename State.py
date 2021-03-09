@@ -92,8 +92,32 @@ class State(object):
         #     cv.waitKey(0)
 
     def video(self):
-        """TODO: Save the video"""
-        pass
+        """Show the game as a video"""
+        if self.is_begin:
+            self.is_begin = False
+            # cv.namedWindow('state', cv.WINDOW_NORMAL)
+            self.canvas = cv.line(self.canvas,
+                                  (0, self.screen_y - self.endline),
+                                  (self.screen_x, self.screen_y - self.endline),
+                                  (0, 0, 255), thickness=2)
+
+        cur_canvas = self.canvas.copy()
+        for ball in self.balls:
+            cv.circle(cur_canvas,
+                      (int(ball.position[0]), int(self.screen_y - ball.position[1])),
+                      int(ball.radius), ball.color, -1)
+
+            text = f"{ball.ball_level + 1}"
+            textsize = cv.getTextSize(text, cv.FONT_HERSHEY_PLAIN, 2, 2)[0]
+            cv.putText(cur_canvas,
+                       text,
+                       (int(ball.position[0] - textsize[0] / 2),
+                        int(self.screen_y - ball.position[1] + textsize[1] / 2)),
+                       cv.FONT_HERSHEY_PLAIN, 2.0, (0, 0, 255), 2)
+        cv.putText(cur_canvas, "Score : {}".format(self.score), (40, 50), cv.FONT_HERSHEY_PLAIN, 2.0, (0, 0, 255),
+                   2)
+        cv.imshow('video', cur_canvas)
+        cv.waitKey(1)
 
 
 def InitCanvas(width, height, color=(255, 255, 255)):
