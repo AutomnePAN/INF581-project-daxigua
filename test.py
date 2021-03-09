@@ -1,4 +1,7 @@
 from Policy_Gradient import *
+import random
+from Game import Game
+from Config import *
 
 
 def test_state_plot():
@@ -25,6 +28,7 @@ def test_state_plot():
             state.is_final = True
         state.plot_state(is_save=True)
 
+
 def policy_gradient_test():
 
     gradient_agent = Gradient_Agent(np.zeros((2, 31)))
@@ -50,6 +54,7 @@ def policy_gradient_test():
 
     print((end_time - start_time) / 60)
 
+
 def test_train():
     gradient_agent = Gradient_Agent(np.zeros((2, 31)))
     game = Game(screen_x, screen_y, end_line,
@@ -58,11 +63,12 @@ def test_train():
     print(theta)
     print(episode_index)
     print(average_returns)
+    np.save("theta3.npy", theta)
+    np.save("average_returns3.npy", average_returns)
+
 
 def test_video():
-    import random
-    from Game import Game
-    from Config import *
+
     class Random_Agent(object):
 
         def get_action(self, state):
@@ -76,7 +82,8 @@ def test_video():
 
         while not is_finish:
             action = agent.get_action(current_state)
-            next_state, reward, is_finish = game.next_step(action, verbose=False, **kwargs)
+            next_state, reward, is_finish = game.next_step(
+                action, verbose=False, **kwargs)
             if plot:
                 next_state.plot_state()
             reward_recorder.append(reward)
@@ -84,8 +91,10 @@ def test_video():
 
         return reward_recorder[-1], reward_recorder, game.current_reward
 
-    game = Game(screen_x, screen_y, end_line, balls_setting, max_random_ball_level)
+    game = Game(screen_x, screen_y, end_line,
+                balls_setting, max_random_ball_level)
     random_agent = Random_Agent()
     play_one_episode(game, random_agent, video=True)
+
 
 test_train()

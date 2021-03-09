@@ -78,6 +78,8 @@ class Game(object):
             for ball in self.current_state.balls:
                 final_step_score += self.balls_setting[ball.ball_level]['score']
             self.current_reward += final_step_score
+            # print('Final step score is {}'.format(
+            #     final_step_score))
             print('The game is finish, final score is {}'.format(
                 self.current_reward))
 

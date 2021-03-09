@@ -1,33 +1,36 @@
+import copy
+import math
+import random
+import subprocess
+import sys
+import time
 from abc import abstractmethod
 from os import name
+from typing import List
+
+import gym
+import imageio
+import IPython
 import matplotlib
 import matplotlib.pyplot as plt
-
-import math
-import gym
 import numpy as np
-import copy
 import pandas as pd
 import seaborn as sns
-import time
-
-import imageio
-
-import IPython
 from IPython.display import Image
+from sklearn.preprocessing import normalize
 
-import sys
-import subprocess
-
-from State import State
-from Movement_evaluation import evaluate_by_gravity
-import numpy as np
-import random
-import time
 from Ball import Ball
 from Config import *
 from Game import Game
-from typing import List
+from Movement_evaluation import evaluate_by_gravity
+from State import State
+
+
+def sigmoid(x: float):
+    """
+    x: float
+    """
+    return 1.0 / (1.0 + np.exp(-x))
 
 
 class Agent(object):
@@ -49,27 +52,29 @@ class Gradient_Agent(Agent):
 
     def logistic_regression(self, s: State):
         mu, sigma = np.dot(s.vectorize(), np.transpose(self.theta))
-        return mu, np.exp(sigma)
+        return s.screen_x * sigmoid(mu), np.exp(sigma)
 
     def get_action(self, s: State):
         mu, sigma = self.logistic_regression(s)
+        #print("mu: {} \t sigma: {}".format(mu, sigma))
         return np.clip(np.random.normal(mu, sigma, 1), 0, s.screen_x)
 
     def compute_policy_gradient(self, episode_states: List[State], episode_actions: List[float], episode_rewards: List[int]):
 
         H = len(episode_rewards)
         PG = 0
-        for t in range(H):
 
-            mu, sigma = logistic_regression(episode_states[t], self.theta)
+        for t in range(H):
+            mu, sigma = self.logistic_regression(episode_states[t])
+            s_t = episode_states[t].vectorize()
             a_t = episode_actions[t]
             R_t = sum(episode_rewards[t::])
-            s_t = episode_states[t].vectorize().reshape(-1, 1)
-            n_s_t, _ = s_t.shape
             g_gaussian = [(a_t-mu)/(sigma**2),
                           ((a_t-mu)**2-sigma**2)/(sigma**3)]
-            g_theta_log_pi = np.hstack([s_t, np.zeros(
-                (n_s_t, 1))])*g_gaussian[0] + np.hstack([np.zeros((n_s_t, 1)), s_t])*g_gaussian[1]
+            mu_partiel_theta = np.array([s_t, np.zeros(31)])
+            sigma_partiel_theta = np.array([np.zeros(31), s_t])
+            g_theta_log_pi = g_gaussian[0]*mu_partiel_theta*mu*(1-mu/episode_states[t].screen_x) + \
+                g_gaussian[1]*sigma_partiel_theta*sigma
             PG += g_theta_log_pi * R_t
 
         return PG
@@ -77,30 +82,23 @@ class Gradient_Agent(Agent):
     # Train the agent got an average reward greater or equals to 195 over 100 consecutive trials
 
 
-def sigmoid(x: float):
-    """
-    x: float
-    """
-    return 1.0 / (1.0 + np.exp(-x))
+# def logistic_regression(s: State, theta: np.array):
+#     """
+#     s: State
+#     theta: np.array, with the same dimension as the vectorized state
+
+#     Example:
+#     >>> logistic_regression(Game(screen_x, screen_y, end_line, balls_setting, max_random_ball_level).init_state(), np.zeros((2, 31)))
+#     (0.0, 1.0)
+#     """
+
+#     mu, sigma = np.dot(s.vectorize(), np.transpose(theta))
+#     return sigmoid(mu), np.exp(sigma)
 
 
-def logistic_regression(s: State, theta: np.array):
-    """
-    s: State
-    theta: np.array, with the same dimension as the vectorized state
-
-    Example:
-    >>> logistic_regression(Game(screen_x, screen_y, end_line, balls_setting, max_random_ball_level).init_state(), np.zeros((2, 31)))
-    (0.0, 1.0)
-    """
-
-    mu, sigma = np.dot(s.vectorize(), np.transpose(theta))
-    return mu, np.exp(sigma)
-
-
-def draw_action(s: State, theta):
-    mu, sigma = logistic_regression(s, theta)
-    return np.clip(np.random.normal(mu, sigma, 1), 0, s.screen_x)
+# def draw_action(s: State, theta):
+#     mu, sigma = logistic_regression(s, theta)
+#     return np.clip(np.random.normal(mu, sigma, 1), 0, s.screen_x)
 
 
 def play_one_episode(game: Game, agent: Agent, max_step=None, plot=False):
@@ -123,34 +121,38 @@ def play_one_episode(game: Game, agent: Agent, max_step=None, plot=False):
         if episode_rewards == []:
             episode_rewards.append(reward)
         else:
-            episode_rewards.append(reward-episode_rewards[-1])
+            episode_rewards.append(reward-np.sum(episode_rewards))
         episode_actions.append(action)
         episode_states.append(current_state)
         step += 1
-        print(episode_rewards)
+        # print(episode_rewards)
         if max_step and step >= max_step:
             break
-
-    print("HHHHHHHH")
+    print(episode_rewards)
+    print("")
     return episode_states, episode_actions, episode_rewards
 
 
 # Returns Policy Gradient for a given episode
-def compute_policy_gradient(episode_states, episode_actions, episode_rewards, theta):
+# def compute_policy_gradient(episode_states, episode_actions, episode_rewards, theta):
 
-    H = len(episode_rewards)
-    PG = 0
+#     H = len(episode_rewards)
+#     PG = 0
 
-    for t in range(H):
+#     for t in range(H):
 
-        mu, sigma = logistic_regression(episode_states[t], theta)
-        a_t = episode_actions[t]
-        R_t = sum(episode_rewards[t::])
-        g_gaussian = [(a_t-mu)/(sigma**2), ((a_t-mu)**2-sigma**2)/(sigma**3)]
-        g_theta_log_pi = np.dot(episode_states[t], g_gaussian)
-        PG += g_theta_log_pi * R_t
+#         mu, sigma = logistic_regression(episode_states[t], theta)
+#         s_t = episode_states[t].vectorize()
+#         a_t = episode_actions[t]
+#         R_t = sum(episode_rewards[t::])
+#         g_gaussian = [(a_t-mu)/(sigma**2), ((a_t-mu)**2-sigma**2)/(sigma**3)]
+#         mu_partiel_theta = np.array([s_t, np.zeros(31)])
+#         sigma_partiel_theta = np.array([np.zeros(31), s_t])
+#         g_theta_log_pi = g_gaussian[0]*mu_partiel_theta*mu*(1-mu) + \
+#             g_gaussian[1]*sigma_partiel_theta*sigma
+#         PG += g_theta_log_pi * R_t
 
-    return PG
+#     return PG
 
 
 def score_on_multiple_episodes(game: Game, agent, score=SCORE, num_episodes=NUM_EPISODES, plot=False):
@@ -158,6 +160,7 @@ def score_on_multiple_episodes(game: Game, agent, score=SCORE, num_episodes=NUM_
     num_success = 0
     average_return = 0
     num_consecutive_success = [0]
+    rewards = []
 
     for episode_index in range(num_episodes):
         _, _, episode_rewards = play_one_episode(
@@ -175,7 +178,8 @@ def score_on_multiple_episodes(game: Game, agent, score=SCORE, num_episodes=NUM_
 
         if plot:
             print("Test Episode {0}: Total Reward = {1} - Success = {2}".format(
-                episode_index, total_rewards, total_rewards > score))
+                episode_index+1, total_rewards, total_rewards > score))
+        rewards.append(total_rewards)
 
     # MAY BE ADAPTED TO SPEED UP THE LERNING PROCEDURE
     if max(num_consecutive_success) >= NUM_CONSECUTIVE_SUCCESS:
@@ -183,12 +187,11 @@ def score_on_multiple_episodes(game: Game, agent, score=SCORE, num_episodes=NUM_
     else:
         success = False
 
-    return success, num_success, average_return
+    return success, num_success, average_return, rewards
 
 
 def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
 
-    theta = agent.theta
     episode_index = 0
     average_returns = []
 
@@ -196,26 +199,32 @@ def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
     average_returns.append(R)
 
     # Train until success
-    while (not success):
+    # while (not success):
+    for i in range(1000):
 
         # Rollout
         episode_states, episode_actions, episode_rewards = play_one_episode(
             game, agent)
 
         # Schedule step size
-        #alpha = alpha_init
-        alpha = alpha_init / (1 + episode_index)
+        # alpha = alpha_init
+        alpha = alpha_init / (1 + 0.1*episode_index)
 
         # Compute gradient
-        PG = compute_policy_gradient(
-            episode_states, episode_actions, episode_rewards, theta)
+        PG = agent.compute_policy_gradient(
+            episode_states, episode_actions, episode_rewards)
+        # print variable value
+        # print(theta)
+        # restrict the range of gradient to avoid gradient explosion
+
+        PG = normalize(PG)
+        # print(PG)
 
         # Do gradient ascent
-        theta += alpha * PG
-        agent.theta = theta
+        agent.theta += alpha * PG
 
         # Test new policy
-        success, _, R = score_on_multiple_episodes(
+        success, _, R, _ = score_on_multiple_episodes(
             game, agent, plot=True)
 
         # Monitoring
@@ -225,7 +234,7 @@ def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
 
         print("Episode {0}, average return: {1}".format(episode_index, R))
 
-    return theta, episode_index, average_returns
+    return agent.theta, episode_index, average_returns
 
 
 if __name__ == "__main__":

@@ -23,7 +23,7 @@ balls_setting = {
 max_random_ball_level = 3
 
 # Policy_Gradient
-SCORE = 500
-NUM_EPISODES = 5
+SCORE = 300
+NUM_EPISODES = 3
 NUM_CONSECUTIVE_SUCCESS = 1
-ALPHA_INIT = 0.1
+ALPHA_INIT = 1e-2
