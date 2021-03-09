@@ -116,7 +116,7 @@ class State(object):
         cv.putText(cur_canvas, "Score : {}".format(self.score), (40, 50), cv.FONT_HERSHEY_PLAIN, 2.0, (0, 0, 255),
                    2)
         cv.imshow('video', cur_canvas)
-        cv.waitKey(2)
+        cv.waitKey(1)
 
 
 def InitCanvas(width, height, color=(255, 255, 255)):
