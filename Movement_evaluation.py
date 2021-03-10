@@ -42,7 +42,7 @@ def evaluate_by_gravity(state,
     implement the movement of the balls in the state by the effect of gravity
     """
     
-    g = -39.8
+    g = -19.8
     amortize_factor = 1.5  # further tuning needed
     collision_factor = 0.09  # further tuning needed
 
@@ -159,6 +159,8 @@ def evaluate_by_gravity(state,
             b = balls[i]
             if np.linalg.norm(b.velocity) < 0.5 * -g * dt:
                 b.velocity = np.array([0,0])
+            if np.linalg.norm(b.velocity) > 10 * -g * dt:
+                b.velocity = b.velocity / np.linalg.norm(b.velocity) 
 
         if plot:
             if count % 5 == 0:
@@ -172,7 +174,10 @@ def evaluate_by_gravity(state,
         t += dt
         if t > protection_time_limit:  # protection, need more tuning
             break
-
+    
+    for b in state.balls:
+        b.velocity = np.array([0,0])
+    
     state.score += obtained_score
     state.step += 1
 
