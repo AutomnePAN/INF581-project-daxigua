@@ -30,22 +30,24 @@ class State(object):
         self.step = 0
         self.canvas = InitCanvas(self.screen_x, self.screen_y, color=self.bg_color)
 
-    def vectorize(self, N = 10):
+    def vectorize(self, grid_size = 40 ):
         """
         vectorize current state by a vector of dimension 3*N + 1
         We suppose there is only one ball above the endline
         """
-        result = np.zeros(3 * N + 1)
+        M = int(self.endline / grid_size) + 1
+        N = int(self.screen_x / grid_size) + 1
+        
+        result = np.zeros(M * N + 1)
         self.balls.sort(key = lambda b: b.position[1], reverse=True)
         k = 0
-        for i in range(min(N, len(self.balls))):
+        for i in range( len(self.balls)):
             if self.balls[i].position[1] > self.endline:
                 result[0] = 2 * self.balls[i].radius / self.screen_x
             else:
-                result[3 * k + 1] = self.balls[i].position[0] / self.screen_x
-                result[3 * k + 2] = self.balls[i].position[1] / self.screen_y
-                result[3 * k + 3] = 2 * self.balls[i].radius / self.screen_x
-                k += 1
+                grid_x = int(self.balls[i].position[0] / grid_size)
+                grid_y = int(self.balls[i].position[1] / grid_size)
+                result[1 + N * grid_y + grid_x ] = 2 * self.balls[i].radius / self.screen_x
         return result
         
     
