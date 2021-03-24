@@ -56,15 +56,15 @@ def policy_gradient_test():
 
 
 def test_train():
-    gradient_agent = Gradient_Agent(np.zeros((2, 31)))
+    gradient_agent = Gradient_Agent(np.zeros((2, 78)))
     game = Game(screen_x, screen_y, end_line,
                 balls_setting, max_random_ball_level)
     theta, episode_index, average_returns = train(game, gradient_agent)
     print(theta)
     print(episode_index)
     print(average_returns)
-    np.save("theta3.npy", theta)
-    np.save("average_returns3.npy", average_returns)
+    np.save("theta4.npy", theta)
+    np.save("average_returns4.npy", average_returns)
 
 
 def test_video():

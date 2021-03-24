@@ -71,8 +71,8 @@ class Gradient_Agent(Agent):
             R_t = sum(episode_rewards[t::])
             g_gaussian = [(a_t-mu)/(sigma**2),
                           ((a_t-mu)**2-sigma**2)/(sigma**3)]
-            mu_partiel_theta = np.array([s_t, np.zeros(31)])
-            sigma_partiel_theta = np.array([np.zeros(31), s_t])
+            mu_partiel_theta = np.array([s_t, np.zeros(78)])
+            sigma_partiel_theta = np.array([np.zeros(78), s_t])
             g_theta_log_pi = g_gaussian[0]*mu_partiel_theta*mu*(1-mu/episode_states[t].screen_x) + \
                 g_gaussian[1]*sigma_partiel_theta*sigma
             PG += g_theta_log_pi * R_t
@@ -157,7 +157,7 @@ def train(game: Game, agent: Gradient_Agent, alpha_init=ALPHA_INIT):
 
     # Train until success
     # while (not success):
-    for i in range(1000):
+    for i in range(500):
 
         # Rollout
         episode_states, episode_actions, episode_rewards = play_one_episode(
